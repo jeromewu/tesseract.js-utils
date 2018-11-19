@@ -1,13 +1,9 @@
-const expect = require('expect.js');
-const { loadLang } = require('../../');
-const {
-  LANG_URI,
-} = require('../config.json');
-const {
-  ONE_LANG,
-  TWO_LANGS,
-  THREE_LANGS,
-} = require('../assets/data/lang.json');
+/* eslint-disable no-undef */
+const { loadLang } = TesseractJSUtils;
+const LANG_URI = 'https://cdn.jsdelivr.net/gh/naptha/tessdata@gh-pages/4.0.0';
+const ONE_LANG = 'slk_frak';
+const TWO_LANGS = 'slk_frak+fas';
+const THREE_LANGS = 'slk_frak+fas+mri';
 
 describe('loadLang', () => {
   it(`load 1 lang from ${LANG_URI}`, (done) => {
