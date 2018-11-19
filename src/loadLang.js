@@ -1,11 +1,4 @@
-const util = require('util');
-const fs = require('fs');
-const zlib = require('zlib');
-const fetch = require('./common/fetch');
-
-const readFile = util.promisify(fs.readFile);
-
-const handleLang = ({
+const handleLang = modules => ({
   tessModule,
   dataPath,
   cachePath,
@@ -23,24 +16,29 @@ const handleLang = ({
     tessModule.FS.writeFile(`${dataPath || '.'}/${lang}.traineddata`, data);
   }
   if (cache) {
-    fs.writeFileSync(`${cachePath || '.'}/${lang}.traineddata`, data);
+    modules.writeCache(`${cachePath || '.'}/${lang}.traineddata`, data);
   }
   return data;
 };
 
-const loadAndGunzipFile = ({
+const loadAndGunzipFile = modules => ({
   langURI,
   cachePath,
   ...options
 }) => lang => (
-  readFile(`${cachePath || '.'}/${lang}.traineddata`)
-    .then(handleLang({ cachePath, lang, ...options }))
+  modules.readCache(`${cachePath || '.'}/${lang}.traineddata`)
+    .then((data) => {
+      if (typeof data === 'undefined') {
+        return Promise.reject();
+      }
+      return handleLang(modules)({ cachePath, lang, ...options })(data);
+    })
     .catch(() => (
       // console.log(`Download ${lang}.traineddata.gz from ${langURI}/${lang}.traineddata.gz...`);
-      fetch(`${langURI}/${lang}.traineddata.gz`)
+      modules.fetch(`${langURI}/${lang}.traineddata.gz`)
         .then(resp => resp.arrayBuffer())
-        .then(buf => zlib.gunzipSync(buf))
-        .then(handleLang({ cachePath, lang, ...options }))
+        .then(buf => modules.gunzip(new Uint8Array(buf)))
+        .then(handleLang(modules)({ cachePath, lang, ...options }))
     ))
 );
 
@@ -62,10 +60,10 @@ const loadAndGunzipFile = ({
  * @param {boolean} cache - true for caching
  *
  */
-module.exports = ({
+module.exports = modules => ({
   langs,
   ...options
 }) => (
   Promise
-    .all(langs.split('+').map(loadAndGunzipFile(options)))
+    .all(langs.split('+').map(loadAndGunzipFile(modules)(options)))
 );
