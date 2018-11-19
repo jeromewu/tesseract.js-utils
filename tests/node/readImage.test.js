@@ -1,8 +1,8 @@
 const expect = require('expect.js');
 const fs = require('fs');
-const readImage = require('../src/readImage');
+const { readImage } = require('../../');
 const duplicateIt = require('./utils/duplicateIt');
-const testocr = require('./assets/data/testocr.json');
+const testocr = require('../assets/data/testocr.json');
 
 process.setMaxListeners(Infinity);
 

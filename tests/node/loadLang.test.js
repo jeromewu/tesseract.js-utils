@@ -1,13 +1,13 @@
 const expect = require('expect.js');
-const loadLang = require('../src/loadLang');
+const { loadLang } = require('../../');
 const {
   LANG_URI,
-} = require('./config.json');
+} = require('../config.json');
 const {
   ONE_LANG,
   TWO_LANGS,
   THREE_LANGS,
-} = require('./assets/data/lang.json');
+} = require('../assets/data/lang.json');
 
 describe('loadLang', () => {
   it(`load 1 lang from ${LANG_URI}`, (done) => {
