@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 const { readImage } = TesseractJSUtils;
 const testocr = { width: 640, height: 480 };
 const formats = ['jpg', 'pbm', 'png'];

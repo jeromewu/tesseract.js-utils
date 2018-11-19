@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "import/no-extraneous-dependencies": 0
+  },
+  "globals": {
+    "expect": true,
+    "TesseractJSUtils": true,
+    "TesseractCoreWASM": true,
+    "TesseractCoreASM": true
+  }
+}
