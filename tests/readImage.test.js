@@ -27,6 +27,6 @@ formats.forEach((format) => {
 
 describe('loadImage', () => {
   Object.keys(loadImageCases).forEach((key) => {
-    duplicateIt(key, loadImageCases[key], { timeout: 3000 });
+    duplicateIt(key, loadImageCases[key], { timeout: 5000 });
   });
 });

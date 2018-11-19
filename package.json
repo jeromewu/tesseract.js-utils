@@ -6,7 +6,7 @@
   "scripts": {
     "test:server": "node tests/scripts/server.js",
     "test:node": "mocha --require ./tests/scripts/helper.js tests/*.test.js",
-    "test:browser": "testcafe chrome:headless tests/browser/**/*.test.js",
+    "test:browser": "testcafe chrome tests/browser/**/*.test.js",
     "lint": "eslint ."
   },
   "files": [
