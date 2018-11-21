@@ -1,8 +1,11 @@
+const cache = require('./common/browser/cache');
+
 module.exports = {
   loadLang: require('./loadLang')({
     fetch: require('./common/browser/fetch'),
     gunzip: require('./common/browser/gunzip'),
-    ...require('./common/browser/cache'),
+    ...cache,
   }),
   readImage: require('./readImage'),
+  cache,
 };

@@ -13,7 +13,7 @@ module.exports = (TessModule, iBuf) => {
   /*
    * Although leptonica should support reading bmp, there is a bug of "compressed BMP files".
    * As there is no solution, we need to use bmp-js for now.
-   * Ref: https://groups.google.com/forum/#!topic/tesseract-ocr/4mPD9zTxdxE
+   * @see https://groups.google.com/forum/#!topic/tesseract-ocr/4mPD9zTxdxE
    */
   if (type && type.mime === 'image/bmp') {
     const bmpBuf = bmp.decode(buf);
