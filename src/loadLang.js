@@ -1,3 +1,5 @@
+const isURL = require('is-url');
+
 const handleLang = modules => ({
   TessModule,
   dataPath,
@@ -43,15 +45,33 @@ const loadAndGunzipFile = modules => ({
         cachePath, cacheMethod, lang, ...options,
       })(data);
     })
-    .catch(() => (
-      // console.log(`Download ${lang}.traineddata.gz from ${langURI}/${lang}.traineddata.gz...`);
-      modules.fetch(`${langPath}/${lang}.traineddata.gz`)
-        .then(resp => resp.arrayBuffer())
+    .catch(() => {
+      const fetchTrainedData = iLangPath => (
+        modules.fetch(`${iLangPath}/${lang}.traineddata.gz`)
+          .then(resp => resp.arrayBuffer())
+          .then(buf => modules.gunzip(new Uint8Array(buf)))
+          .then(handleLang(modules)({
+            cachePath, cacheMethod, lang, ...options,
+          }))
+      );
+
+      /** When langPath is an URL, just do the fetch */
+      if (isURL(langPath)) {
+        return fetchTrainedData(langPath);
+      }
+
+      /** When langPath is not an URL in browser environment */
+      if (process.browser) {
+        return fetchTrainedData(modules.resolveURL(langPath));
+      }
+
+      /** When langPath is not an URL in Node.js environment */
+      return modules.readCache(`${langPath}/${lang}.traineddata.gz`)
         .then(buf => modules.gunzip(new Uint8Array(buf)))
         .then(handleLang(modules)({
           cachePath, cacheMethod, lang, ...options,
-        }))
-    ));
+        }));
+    });
 };
 
 /**

@@ -9,6 +9,10 @@ const ONE_LANG = 'slk_frak';
 const TWO_LANGS = 'slk_frak+fas';
 const THREE_LANGS = 'slk_frak+fas+mri';
 
+const REL_PATH = typeof window !== 'undefined'
+  ? '../assets/traineddata'
+  : './tests/assets/traineddata';
+
 const deleteCaches = langs => (
   Promise.all(
     langs.split('+').map(lang => deleteCache(`./${lang}.traineddata`)),
@@ -32,6 +36,15 @@ after((done) => {
 });
 
 describe('loadLang', () => {
+  it('accepts relative langPath', (done) => {
+    loadLang({ lang: ONE_LANG, langPath: REL_PATH, cacheMethod: 'none' })
+      .then((langs) => {
+        expect(langs.length).to.be(1);
+        expect(langs[0].length).not.to.be(0);
+        done();
+      });
+  });
+
   describe('Load multiple lang', () => {
     it(`load 1 lang from ${LANG_URI}`, (done) => {
       loadLang({ lang: ONE_LANG, langPath: LANG_URI })
@@ -73,7 +86,7 @@ describe('loadLang', () => {
   });
 
   describe('Cache method', () => {
-    it('Not to write with "none" method', (done) => {
+    it('not to write with "none" method', (done) => {
       loadLang({ lang: ONE_LANG, langPath: LANG_URI, cacheMethod: 'none' })
         .then(() => checkCache(`./${ONE_LANG}.traineddata`))
         .then((exist) => {
@@ -82,7 +95,7 @@ describe('loadLang', () => {
         });
     });
 
-    it('Not to write with "readOnly" method', (done) => {
+    it('not to write with "readOnly" method', (done) => {
       loadLang({ lang: ONE_LANG, langPath: LANG_URI, cacheMethod: 'readOnly' })
         .then(() => checkCache(`./${ONE_LANG}.traineddata`))
         .then((exist) => {
@@ -91,7 +104,7 @@ describe('loadLang', () => {
         });
     });
 
-    it('Refresh cache with "refresh" method', (done) => {
+    it('refresh cache with "refresh" method', (done) => {
       writeCache(`./${ONE_LANG}.traineddata`, [])
         .then(() => loadLang({ lang: ONE_LANG, langPath: LANG_URI, cacheMethod: 'refresh' }))
         .then(() => readCache(`./${ONE_LANG}.traineddata`))
