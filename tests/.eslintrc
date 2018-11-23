@@ -6,6 +6,8 @@
     "expect": true,
     "TesseractJSUtils": true,
     "TesseractCoreWASM": true,
-    "TesseractCoreASM": true
+    "TesseractCoreASM": true,
+    "startServer": true,
+    "stopServer": true
   }
 }

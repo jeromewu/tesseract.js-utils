@@ -15,10 +15,26 @@ const deleteCaches = langs => (
   )
 );
 
+before((done) => {
+  if (typeof startServer !== 'undefined') {
+    startServer(done);
+  } else {
+    done();
+  }
+});
+
+after((done) => {
+  if (typeof stopServer !== 'undefined') {
+    stopServer(done);
+  } else {
+    done();
+  }
+});
+
 describe('loadLang', () => {
   describe('Load multiple lang', () => {
     it(`load 1 lang from ${LANG_URI}`, (done) => {
-      loadLang({ langs: ONE_LANG, langURI: LANG_URI })
+      loadLang({ lang: ONE_LANG, langPath: LANG_URI })
         .then((langs) => {
           expect(langs.length).to.be(1);
           expect(langs[0].length).not.to.be(0);
@@ -30,7 +46,7 @@ describe('loadLang', () => {
     });
 
     it(`load 2 langs from ${LANG_URI}`, (done) => {
-      loadLang({ langs: TWO_LANGS, langURI: LANG_URI })
+      loadLang({ lang: TWO_LANGS, langPath: LANG_URI })
         .then((langs) => {
           expect(langs.length).to.be(2);
           expect(langs[0].length).not.to.be(0);
@@ -43,7 +59,7 @@ describe('loadLang', () => {
     });
 
     it(`load 3 langs from ${LANG_URI}`, (done) => {
-      loadLang({ langs: THREE_LANGS, langURI: LANG_URI })
+      loadLang({ lang: THREE_LANGS, langPath: LANG_URI })
         .then((langs) => {
           expect(langs.length).to.be(3);
           expect(langs[0].length).not.to.be(0);
@@ -58,7 +74,7 @@ describe('loadLang', () => {
 
   describe('Cache method', () => {
     it('Not to write with "none" method', (done) => {
-      loadLang({ langs: ONE_LANG, langURI: LANG_URI, cacheMethod: 'none' })
+      loadLang({ lang: ONE_LANG, langPath: LANG_URI, cacheMethod: 'none' })
         .then(() => checkCache(`./${ONE_LANG}.traineddata`))
         .then((exist) => {
           expect(exist).to.be(false);
@@ -67,7 +83,7 @@ describe('loadLang', () => {
     });
 
     it('Not to write with "readOnly" method', (done) => {
-      loadLang({ langs: ONE_LANG, langURI: LANG_URI, cacheMethod: 'readOnly' })
+      loadLang({ lang: ONE_LANG, langPath: LANG_URI, cacheMethod: 'readOnly' })
         .then(() => checkCache(`./${ONE_LANG}.traineddata`))
         .then((exist) => {
           expect(exist).to.be(false);
@@ -77,7 +93,7 @@ describe('loadLang', () => {
 
     it('Refresh cache with "refresh" method', (done) => {
       writeCache(`./${ONE_LANG}.traineddata`, [])
-        .then(() => loadLang({ langs: ONE_LANG, langURI: LANG_URI, cacheMethod: 'refresh' }))
+        .then(() => loadLang({ lang: ONE_LANG, langPath: LANG_URI, cacheMethod: 'refresh' }))
         .then(() => readCache(`./${ONE_LANG}.traineddata`))
         .then((data) => {
           expect(data.length).not.to.be(0);

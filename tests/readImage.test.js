@@ -9,6 +9,22 @@ const duplicateIt = (desc, callback, { timeout }) => {
 
 const loadImageCases = {};
 
+before((done) => {
+  if (typeof startServer !== 'undefined') {
+    startServer(done);
+  } else {
+    done();
+  }
+});
+
+after((done) => {
+  if (typeof stopServer !== 'undefined') {
+    stopServer(done);
+  } else {
+    done();
+  }
+});
+
 formats.forEach((format) => {
   loadImageCases[`read ${format} format`] = TesseractCore => (done) => {
     TesseractCore().then((TessModule) => {

@@ -1,19 +1,19 @@
 const handleLang = modules => ({
-  tessModule,
+  TessModule,
   dataPath,
   cachePath,
   cacheMethod,
   lang,
 }) => (data) => {
-  if (tessModule) {
+  if (TessModule) {
     if (dataPath) {
       try {
-        tessModule.FS.mkdir(dataPath);
+        TessModule.FS.mkdir(dataPath);
       } catch (err) {
         // TODO: Do some error handling here.
       }
     }
-    tessModule.FS.writeFile(`${dataPath || '.'}/${lang}.traineddata`, data);
+    TessModule.FS.writeFile(`${dataPath || '.'}/${lang}.traineddata`, data);
   }
   if (['write', 'refresh', undefined].includes(cacheMethod)) {
     return modules.writeCache(`${cachePath || '.'}/${lang}.traineddata`, data)
@@ -24,7 +24,7 @@ const handleLang = modules => ({
 };
 
 const loadAndGunzipFile = modules => ({
-  langURI,
+  langPath,
   cachePath,
   cacheMethod,
   ...options
@@ -45,7 +45,7 @@ const loadAndGunzipFile = modules => ({
     })
     .catch(() => (
       // console.log(`Download ${lang}.traineddata.gz from ${langURI}/${lang}.traineddata.gz...`);
-      modules.fetch(`${langURI}/${lang}.traineddata.gz`)
+      modules.fetch(`${langPath}/${lang}.traineddata.gz`)
         .then(resp => resp.arrayBuffer())
         .then(buf => modules.gunzip(new Uint8Array(buf)))
         .then(handleLang(modules)({
@@ -55,29 +55,25 @@ const loadAndGunzipFile = modules => ({
 };
 
 /**
- * Load language(s) from local cache, download from remote if not in cache.
- *
- * All params below actually store in a object.
- *
- * ex:
- *   loadLang({ langs, tesssModule, ... });
  *
  * @name loadLang
- * @function
- * @param {string} langs - langs to load, use '+' for multiple languages, ex: eng+chi_tra
- * @param {object} tessModule - TesseractModule
- * @param {string} langURI - prefix URI for downloading lang file
- * @param {string} cachePath - path to find cache
- * @param {string} dataPath - path to store data in mem
- * @param {string} cacheMethod - method of cache invaliation, should one of following options:
- *  write: read cache and write back (default option)
- *  readOnly: read cache and not to write back (if cache does not exist, it is the same as none)
- *  refresh: not to read cache and write back
- *  none: not to read cache and not to write back
+ * @function load language(s) from local cache, download from remote if not in cache.
+ * @param {object} options
+ * @param {string} options.lang - langs to load, use '+' for multiple languages, ex: eng+chi_tra
+ * @param {object} options.TessModule - TesseractModule
+ * @param {string} options.langPath - prefix path for downloading lang file
+ * @param {string} options.cachePath - path to find cache
+ * @param {string} options.dataPath - path to store data in mem
+ * @param {string} options.cacheMethod -
+ *     method of cache invaliation, should one of following options:
+ *       write: read cache and write back (default method)
+ *       readOnly: read cache and not to write back
+ *       refresh: not to read cache and write back
+ *       none: not to read cache and not to write back
  *
  */
 module.exports = modules => ({
-  langs,
+  lang: langs,
   ...options
 }) => (
   Promise

@@ -5,7 +5,7 @@
   "main": "src/index.node.js",
   "scripts": {
     "test:server": "node tests/scripts/server.js",
-    "test:node": "mocha --require ./tests/scripts/helper.js tests/*.test.js",
+    "test:node": "mocha --exit --bail --require ./tests/scripts/test-helper.js tests/*.test.js",
     "test:browser": "testcafe chrome tests/browser/**/*.test.js",
     "lint": "eslint ."
   },
