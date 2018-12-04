@@ -1,7 +1,7 @@
 const bmp = require('bmp-js');
 const fileType = require('file-type');
 
-module.exports = (TessModule, iBuf) => {
+module.exports = (TessModule, iBuf, yres = 70) => {
   const buf = Buffer.from(iBuf);
   const type = fileType(buf);
   let bytesPerPixel = 0;
@@ -31,7 +31,7 @@ module.exports = (TessModule, iBuf) => {
        * Set a yres default value to prevent warning from tesseract
        * See kMinCredibleResolution in tesseract/src/ccstruct/publictypes.h
        */
-      TessModule.setValue(pix + (7 * 4), 70, 'i32');
+      TessModule.setValue(pix + (7 * 4), yres, 'i32');
     }
     [w, h] = Array(2).fill(0)
       .map((v, idx) => (
