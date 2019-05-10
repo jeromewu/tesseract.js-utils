@@ -1,3 +1,1 @@
-const { fetch } = require('whatwg-fetch');
-
-module.exports = fetch;
+module.exports = fetch.bind();
