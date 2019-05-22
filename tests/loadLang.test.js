@@ -10,7 +10,7 @@ const TWO_LANGS = 'slk_frak+fas';
 const THREE_LANGS = 'slk_frak+fas+mri';
 
 const REL_PATH = typeof window !== 'undefined'
-  ? '../assets/traineddata'
+  ? 'http://localhost:3000/tests/assets/traineddata'
   : './tests/assets/traineddata';
 
 const deleteCaches = langs => (
@@ -18,22 +18,6 @@ const deleteCaches = langs => (
     langs.split('+').map(lang => deleteCache(`./${lang}.traineddata`)),
   )
 );
-
-before((done) => {
-  if (typeof startServer !== 'undefined') {
-    startServer(done);
-  } else {
-    done();
-  }
-});
-
-after((done) => {
-  if (typeof stopServer !== 'undefined') {
-    stopServer(done);
-  } else {
-    done();
-  }
-});
 
 describe('loadLang', () => {
   it('accepts relative langPath', (done) => {

@@ -9,29 +9,14 @@ const duplicateIt = (desc, callback, { timeout }) => {
 
 const loadImageCases = {};
 
-before((done) => {
-  if (typeof startServer !== 'undefined') {
-    startServer(done);
-  } else {
-    done();
-  }
-});
-
-after((done) => {
-  if (typeof stopServer !== 'undefined') {
-    stopServer(done);
-  } else {
-    done();
-  }
-});
-
 formats.forEach((format) => {
   loadImageCases[`read ${format} format`] = TesseractCore => (done) => {
     TesseractCore().then((TessModule) => {
-      fetch(`http://localhost:3000/tests/assets/images/testocr.${format}`)
-        .then(resp => resp.arrayBuffer())
-        .then((buf) => {
-          const { w, h, data } = readImage(TessModule, buf);
+      axios.get(`http://localhost:3000/tests/assets/images/testocr.${format}`, {
+        responseType: 'arraybuffer',
+      })
+        .then((resp) => {
+          const { w, h, data } = readImage(TessModule, resp.data);
           expect(w).to.be(testocr.width);
           expect(h).to.be(testocr.height);
           TessModule._free(data);

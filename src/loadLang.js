@@ -1,4 +1,5 @@
 const isURL = require('is-url');
+const axios = require('axios');
 
 const handleLang = modules => ({
   TessModule,
@@ -47,9 +48,10 @@ const loadAndGunzipFile = modules => ({
     })
     .catch(() => {
       const fetchTrainedData = iLangPath => (
-        modules.fetch(`${iLangPath}/${lang}.traineddata.gz`)
-          .then(resp => resp.arrayBuffer())
-          .then(buf => modules.gunzip(new Uint8Array(buf)))
+        axios.get(`${iLangPath}/${lang}.traineddata.gz`, {
+          responseType: 'arraybuffer',
+        })
+          .then(resp => modules.gunzip(new Uint8Array(resp.data)))
           .then(handleLang(modules)({
             cachePath, cacheMethod, lang, ...options,
           }))
