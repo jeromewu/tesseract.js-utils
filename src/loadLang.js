@@ -1,4 +1,5 @@
 const isURL = require('is-url');
+const fileType = require('file-type');
 const axios = require('axios');
 
 const handleLang = modules => ({
@@ -6,7 +7,7 @@ const handleLang = modules => ({
   dataPath,
   cachePath,
   cacheMethod,
-  lang,
+  langCode,
 }) => (data) => {
   if (TessModule) {
     if (dataPath) {
@@ -16,10 +17,10 @@ const handleLang = modules => ({
         // TODO: Do some error handling here.
       }
     }
-    TessModule.FS.writeFile(`${dataPath || '.'}/${lang}.traineddata`, data);
+    TessModule.FS.writeFile(`${dataPath || '.'}/${langCode}.traineddata`, data);
   }
   if (['write', 'refresh', undefined].includes(cacheMethod)) {
-    return modules.writeCache(`${cachePath || '.'}/${lang}.traineddata`, data)
+    return modules.writeCache(`${cachePath || '.'}/${langCode}.traineddata`, data)
       .then(() => data);
   }
 
@@ -30,49 +31,67 @@ const loadAndGunzipFile = modules => ({
   langPath,
   cachePath,
   cacheMethod,
+  gzip = true,
   ...options
 }) => (lang) => {
+  const langCode = typeof lang === 'string' ? lang : lang.code;
+  const handleTraineddata = (data) => {
+    const type = fileType(data);
+    if (type !== null && type.mime === 'application/gzip') {
+      return modules.gunzip(new Uint8Array(data));
+    }
+    return new Uint8Array(data);
+  };
+  const doHandleLang = handleLang(modules)({
+    cachePath, cacheMethod, langCode, ...options,
+  });
   let { readCache } = modules;
+
   if (['refresh', 'none'].includes(cacheMethod)) {
     readCache = () => Promise.resolve();
   }
 
-  return readCache(`${cachePath || '.'}/${lang}.traineddata`)
+  return readCache(`${cachePath || '.'}/${langCode}.traineddata`)
     .then((data) => {
       if (typeof data === 'undefined') {
         return Promise.reject();
       }
-      return handleLang(modules)({
-        cachePath, cacheMethod, lang, ...options,
-      })(data);
+      return doHandleLang(data);
     })
+    /*
+     * If not found in the cache
+     */
     .catch(() => {
-      const fetchTrainedData = iLangPath => (
-        axios.get(`${iLangPath}/${lang}.traineddata.gz`, {
-          responseType: 'arraybuffer',
-        })
-          .then(resp => modules.gunzip(new Uint8Array(resp.data)))
-          .then(handleLang(modules)({
-            cachePath, cacheMethod, lang, ...options,
-          }))
-      );
+      if (typeof lang === 'string') {
+        const fetchTrainedData = iLangPath => (
+          axios.get(`${iLangPath}/${langCode}.traineddata${gzip ? '.gz' : ''}`, {
+            responseType: 'arraybuffer',
+          })
+            .then(({ data }) => new Uint8Array(data))
+            .then(handleTraineddata)
+            .then(doHandleLang)
+        );
 
-      /** When langPath is an URL, just do the fetch */
-      if (isURL(langPath)) {
-        return fetchTrainedData(langPath);
+        /** When langPath is an URL, just do the fetch */
+        if (isURL(langPath)) {
+          return fetchTrainedData(langPath);
+        }
+
+        /** When langPath is not an URL in browser environment */
+        if (process.browser) {
+          return fetchTrainedData(modules.resolveURL(langPath));
+        }
+
+        /** When langPath is not an URL in Node.js environment */
+        return modules.readCache(`${langPath}/${langCode}.traineddata${gzip ? '.gz' : ''}`)
+          .then(handleTraineddata)
+          .then(doHandleLang);
       }
 
-      /** When langPath is not an URL in browser environment */
-      if (process.browser) {
-        return fetchTrainedData(modules.resolveURL(langPath));
-      }
-
-      /** When langPath is not an URL in Node.js environment */
-      return modules.readCache(`${langPath}/${lang}.traineddata.gz`)
-        .then(buf => modules.gunzip(new Uint8Array(buf)))
-        .then(handleLang(modules)({
-          cachePath, cacheMethod, lang, ...options,
-        }));
+      return Promise
+        .resolve(lang.data)
+        .then(handleTraineddata)
+        .then(doHandleLang);
     });
 };
 
@@ -81,11 +100,20 @@ const loadAndGunzipFile = modules => ({
  * @name loadLang
  * @function load language(s) from local cache, download from remote if not in cache.
  * @param {object} options
- * @param {string} options.lang - langs to load, use '+' for multiple languages, ex: eng+chi_tra
+ * @param {array}  options.langs -
+ *     langs to load.
+ *     Each item in the array can be string (ex. 'eng') or object like:
+ *      {
+ *        code: 'eng',
+ *        gzip: false,
+ *        data: Uint8Array
+ *      }
  * @param {object} options.TessModule - TesseractModule
  * @param {string} options.langPath - prefix path for downloading lang file
  * @param {string} options.cachePath - path to find cache
  * @param {string} options.dataPath - path to store data in mem
+ * @param {boolean}options.gzip -
+ *     indicate whether to download gzip version from remote, default: true
  * @param {string} options.cacheMethod -
  *     method of cache invaliation, should one of following options:
  *       write: read cache and write back (default method)
@@ -95,9 +123,9 @@ const loadAndGunzipFile = modules => ({
  *
  */
 module.exports = modules => ({
-  lang: langs,
+  langs,
   ...options
 }) => (
   Promise
-    .all(langs.split('+').map(loadAndGunzipFile(modules)(options)))
+    .all(langs.map(loadAndGunzipFile(modules)(options)))
 );
