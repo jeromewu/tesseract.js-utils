@@ -79,6 +79,44 @@ describe('loadLang', () => {
           done();
         });
     });
+    
+    it(`load 1 lang in string format from ${LANG_URI}`, (done) => {
+      loadLang({ langs: ONE_LANG.join('+'), langPath: LANG_URI })
+        .then((langs) => {
+          expect(langs.length).to.be(1);
+          expect(langs[0].length).not.to.be(0);
+          return deleteCaches(ONE_LANG);
+        })
+        .then(() => {
+          done();
+        });
+    });
+
+    it(`load 2 langs in string format from ${LANG_URI}`, (done) => {
+      loadLang({ langs: TWO_LANGS.join('+'), langPath: LANG_URI })
+        .then((langs) => {
+          expect(langs.length).to.be(2);
+          expect(langs[0].length).not.to.be(0);
+          expect(langs[1].length).not.to.be(0);
+          return deleteCaches(TWO_LANGS);
+        })
+        .then(() => {
+          done();
+        });
+    });
+
+    it(`load 3 langs in string format from ${LANG_URI}`, (done) => {
+      loadLang({ langs: THREE_LANGS.join('+'), langPath: LANG_URI })
+        .then((langs) => {
+          expect(langs.length).to.be(3);
+          expect(langs[0].length).not.to.be(0);
+          expect(langs[1].length).not.to.be(0);
+          expect(langs[2].length).not.to.be(0);
+          return deleteCaches(THREE_LANGS);
+        }).then(() => {
+          done();
+        });
+    });
   });
 
 

@@ -127,5 +127,5 @@ module.exports = modules => ({
   ...options
 }) => (
   Promise
-    .all(langs.map(loadAndGunzipFile(modules)(options)))
+    .all((typeof langs === 'string' ? langs.split('+') : langs).map(loadAndGunzipFile(modules)(options)))
 );
