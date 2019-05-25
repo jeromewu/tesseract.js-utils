@@ -73,13 +73,8 @@ const loadAndGunzipFile = modules => ({
         );
 
         /** When langPath is an URL, just do the fetch */
-        if (isURL(langPath)) {
+        if (isURL(langPath) || langPath.startsWith('chrome-extension://')/* for chrome extensions */) {
           return fetchTrainedData(langPath);
-        }
-
-        /** When langPath is not an URL in browser environment */
-        if (process.browser) {
-          return fetchTrainedData(modules.resolveURL(langPath));
         }
 
         /** When langPath is not an URL in Node.js environment */
@@ -99,8 +94,8 @@ const loadAndGunzipFile = modules => ({
  *
  * @name loadLang
  * @function load language(s) from local cache, download from remote if not in cache.
- * @param {object} options
- * @param {array}  options.langs -
+ * @param {object}   options
+ * @param {array}    options.langs -
  *     langs to load.
  *     Each item in the array can be string (ex. 'eng') or object like:
  *      {
@@ -108,11 +103,11 @@ const loadAndGunzipFile = modules => ({
  *        gzip: false,
  *        data: Uint8Array
  *      }
- * @param {object} options.TessModule - TesseractModule
- * @param {string} options.langPath - prefix path for downloading lang file
- * @param {string} options.cachePath - path to find cache
- * @param {string} options.dataPath - path to store data in mem
- * @param {boolean}options.gzip -
+ * @param {object}   options.TessModule - TesseractModule
+ * @param {string}   options.langPath - prefix path for downloading lang file
+ * @param {string}   options.cachePath - path to find cache
+ * @param {string}   options.dataPath - path to store data in mem
+ * @param {boolean}  options.gzip -
  *     indicate whether to download gzip version from remote, default: true
  * @param {string} options.cacheMethod -
  *     method of cache invaliation, should one of following options:

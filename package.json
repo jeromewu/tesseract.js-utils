@@ -12,7 +12,7 @@
     "test:browser-tpl": "mocha-headless-chrome -a incognito -a no-sandbox -a disable-setuid-sandbox -t 300000",
     "test:browser:load-lang": "npm run test:browser-tpl -- -f ./tests/loadLang.test.html",
     "test:browser:read-image": "npm run test:browser-tpl -- -f ./tests/readImage.test.html",
-    "lint": "eslint ."
+    "lint": "eslint src"
   },
   "files": [
     "/src"
@@ -61,7 +61,6 @@
     "file-type": "^10.5.0",
     "idb-keyval": "^3.1.0",
     "is-url": "^1.2.4",
-    "resolve-url": "^0.2.1",
     "zlibjs": "^0.3.1"
   }
 }
