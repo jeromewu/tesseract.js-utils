@@ -73,7 +73,7 @@ const loadAndGunzipFile = modules => ({
         );
 
         /** When langPath is an URL, just do the fetch */
-        if (isURL(langPath) || langPath.startsWith('chrome-extension://')/* for chrome extensions */) {
+        if (isURL(langPath) || langPath.startsWith('chrome-extension://')/* for chrome extensions */  || langPath.startsWith('file://')/* for file:// protocol*/) {
           return fetchTrainedData(langPath);
         }
 
